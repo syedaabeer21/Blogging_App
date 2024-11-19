@@ -1,18 +1,30 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { auth, db } from '../config/firebaseConfig';
-import { addDoc, collection, deleteDoc, doc, getDocs, query, where, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
 
 const Dashboard = () => {
   const titleRef = useRef();
   const descriptionRef = useRef();
 
   const [loading, setLoading] = useState(false);
-  const [spin , setSpin] = useState(true)
+  const [spin, setSpin] = useState(true);
   const [blogs, setBlogs] = useState([]);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [blogToDelete, setBlogToDelete] = useState(null);
-  const [editingBlog, setEditingBlog] = useState(null); // Track the blog being edited
+  const [editingBlog, setEditingBlog] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetchData();
@@ -30,11 +42,14 @@ const Dashboard = () => {
         uid: auth.currentUser.uid,
         createdAt: serverTimestamp(),
       };
-      
+
       await addDoc(collection(db, 'blogs'), newBlog);
       setBlogs((prevBlogs) => [{ ...newBlog, createdAt: new Date() }, ...prevBlogs]);
       titleRef.current.value = '';
       descriptionRef.current.value = '';
+
+      setSuccessMessage('Blog published successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     } catch (e) {
       console.error('Error adding document: ', e);
       setError('Error posting blog');
@@ -44,7 +59,7 @@ const Dashboard = () => {
   };
 
   const fetchData = async () => {
-    setSpin(true)
+    setSpin(true);
     try {
       const q = query(
         collection(db, 'blogs'),
@@ -52,27 +67,24 @@ const Dashboard = () => {
         orderBy('createdAt', 'desc')
       );
       const querySnapshot = await getDocs(q);
-      const blogsList = querySnapshot.docs.map(doc => {
+      const blogsList = querySnapshot.docs.map((doc) => {
         const data = doc.data();
         return {
-          id: doc.id,  // Ensure this is correct
+          id: doc.id,
           ...data,
           createdAt: data.createdAt ? data.createdAt.toDate() : null,
         };
       });
       setBlogs(blogsList);
-      
     } catch (e) {
       console.error('Error fetching blogs: ', e);
       setError('Error loading blogs');
-    }
-    finally {
+    } finally {
       setSpin(false);
     }
   };
 
   const confirmDeleteBlog = (blogId) => {
-    console.log('Blog to delete:', blogId);
     setBlogToDelete(blogId);
     setShowDeleteModal(true);
   };
@@ -89,6 +101,8 @@ const Dashboard = () => {
     } finally {
       setShowDeleteModal(false);
       setBlogToDelete(null);
+      setSuccessMessage('Blog Deleted successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
     }
   };
 
@@ -112,18 +126,17 @@ const Dashboard = () => {
         updatedAt: serverTimestamp(),
       };
 
-      // Update the blog in Firestore
       await updateDoc(doc(db, 'blogs', editingBlog.id), updatedBlog);
 
-      // Update the blog in the state
       setBlogs((prevBlogs) =>
         prevBlogs.map((blog) =>
           blog.id === editingBlog.id ? { ...blog, ...updatedBlog } : blog
         )
       );
-
-      // Reset editing state
+    
       setEditingBlog(null);
+      setSuccessMessage('Blog Updated successfully!');
+      setTimeout(() => setSuccessMessage(''), 3000);
       titleRef.current.value = '';
       descriptionRef.current.value = '';
     } catch (e) {
@@ -136,57 +149,100 @@ const Dashboard = () => {
 
   return (
     <>
+      {/* Hero Section */}
+      <section className="bg-violet-100 text-center py-10">
+        <h1 className="text-4xl font-bold text-violet-600">Your Dashboard</h1>
+        <p className="mt-3 text-gray-700">Create, manage, and edit your blogs all in one place.</p>
+      </section>
 
-      <h1 className='text-center text-4xl font-bold text-violet-500 mt-5'>Dashboard</h1>
-      
-      <form className='flex flex-col gap-4 justify-center items-center mt-5' onSubmit={editingBlog ? updateBlog : postBlog}>
+      {/* Blog Form */}
+      <form
+        className="flex flex-col gap-4 justify-center items-center mt-5 w-full max-w-3xl mx-auto"
+        onSubmit={editingBlog ? updateBlog : postBlog}
+      >
         <input
           type="text"
           placeholder="Title"
-          className="input input-bordered w-full max-w-xs"
+          className="input input-bordered w-full"
           ref={titleRef}
           required
         />
         <textarea
-          className="textarea textarea-bordered w-[20rem]"
-          placeholder="What is in your mind?"
+          className="textarea textarea-bordered w-full"
+          placeholder="What is on your mind?"
           ref={descriptionRef}
           required
         ></textarea>
         <button
-          type='submit'
-          className="btn bg-violet-500 text-white rounded-lg hover:bg-violet-600"
+          type="submit"
+          className="btn bg-violet-600 text-white rounded-lg hover:bg-violet-700 w-full"
         >
-          {loading ? <span className="loading loading-spinner loading-sm"></span> : editingBlog ? 'Update Blog' : 'Publish Blog'}
+          {loading ? (
+            <span className="loading loading-spinner loading-sm"></span>
+          ) : editingBlog ? (
+            'Update Blog'
+          ) : (
+            'Publish Blog'
+          )}
         </button>
       </form>
 
+      {/* Success Message */}
+      <div className='flex justify-center mt-3'>
+      {successMessage && (
+              <div role="alert" className="alert alert-success mb-3 max-w-3xl  ">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{successMessage}</span>
+              </div>
+            )}
+      </div>
+
+      {/* Error Message */}
       {error && <p className="text-red-500 mt-4">{error}</p>}
-      {spin && <p className="text-violet-500 flex justify-center mt-10 "><span className="loading loading-spinner loading-lg"></span></p>}
-      <div className="mt-10 w-full flex flex-col items-center">
+
+      {spin && (
+        <p className="text-violet-600 flex justify-center mt-10">
+          <span className="loading loading-spinner loading-lg"></span>
+        </p>
+      )}
+
+      {/* Blogs List */}
+      <div className="mt-10 w-full max-w-3xl mx-auto">
         {blogs.length === 0 ? (
-          <p className="text-gray-500">No blogs posted yet.</p>
+          <p className="text-gray-500 text-center text-2xl">No blogs posted yet.</p>
         ) : (
-          blogs.map(blog => (
-            <div key={blog.id} className="w-[90%] max-w-xl mb-4 p-4 border rounded-lg shadow-lg">
-              <h3 className="text-xl font-semibold">{blog.title}</h3>
-              <p className="mt-2 text-gray-700">{blog.description}</p>
+          blogs.map((blog) => (
+            <div
+              key={blog.id}
+              className="mb-6 p-4 border rounded-lg shadow-md bg-white hover:shadow-lg transition-shadow duration-300"
+            >
+              <h3 className="text-2xl font-semibold text-violet-700">{blog.title}</h3>
+              <p className="mt-2 text-gray-600">{blog.description}</p>
               {blog.createdAt && (
-                <small className="text-gray-500">
+                <small className="block mt-4 text-gray-500">
                   Posted on: {blog.createdAt.toLocaleString()}
                 </small>
               )}
-              <br />
-              <div className='flex justify-end'>
+              <div className="flex justify-end gap-3 mt-4">
                 <button
                   onClick={() => startEditBlog(blog)}
-                  className="btn bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition duration-300"
+                  className="btn bg-violet-500 text-white rounded-lg hover:bg-violet-600"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => confirmDeleteBlog(blog.id)}
-                  className="btn bg-red-500 text-white rounded-lg hover:bg-red-600 transition duration-300"
+                  className="btn bg-red-500 text-white rounded-lg hover:bg-red-600"
                 >
                   Delete
                 </button>
@@ -196,14 +252,25 @@ const Dashboard = () => {
         )}
       </div>
 
+      {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="modal modal-open">
           <div className="modal-box">
             <h3 className="text-lg font-bold">Are you sure you want to delete this blog?</h3>
             <p className="py-4">This action cannot be undone.</p>
             <div className="modal-action">
-              <button onClick={() => setShowDeleteModal(false)} className="btn">Cancel</button>
-              <button onClick={deleteBlog} className="btn bg-red-500 text-white">Confirm</button>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="btn bg-gray-500 text-white hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={deleteBlog}
+                className="btn bg-red-500 text-white hover:bg-red-600"
+              >
+                Confirm
+              </button>
             </div>
           </div>
         </div>

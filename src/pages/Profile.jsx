@@ -51,6 +51,9 @@ const Profile = () => {
       await updateDoc(docRef, { fullName: newFullName });
       setBlogger((prev) => ({ ...prev, fullName: newFullName }));
       setSuccess('Full name updated successfully!');
+      setTimeout(()=>{
+        setSuccess(null)
+      },2000)
     } catch (e) {
       console.error('Error updating full name:', e);
       setError('Failed to update full name');
@@ -64,6 +67,9 @@ const Profile = () => {
       const docRef = doc(db, 'bloggers', user.uid);
       await updateDoc(docRef, { email: newEmail }); // Sync with Firestore
       setSuccess('Email updated successfully!');
+      setTimeout(()=>{
+        setSuccess(null)
+      },2000)
     } catch (e) {
       console.error('Error updating email:', e);
       setError('Failed to update email');
@@ -75,6 +81,9 @@ const Profile = () => {
       const user = auth.currentUser;
       await updatePassword(user, newPassword);
       setSuccess('Password updated successfully!');
+      setTimeout(()=>{
+        setSuccess(null)
+      },2000)
     } catch (e) {
       console.error('Error updating password:', e);
       setError('Failed to update password');
@@ -86,10 +95,25 @@ const Profile = () => {
 
   return (
     <div className="flex flex-col items-center mt-10">
-      <h1 className="text-2xl font-bold text-violet-500">Profile</h1>
+      <h1 className="text-3xl font-bold text-violet-600">Profile</h1>
       <p className="text-gray-600 mt-2">{blogger.email}</p>
 
-      {success && <p className="text-green-500 mt-4">{success}</p>}
+      {success && (
+              <div role="alert" className="w-96 alert alert-success mb-3 mt-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>{success}</span>
+              </div>
+            )}
       {error && <p className="text-red-500 mt-4">{error}</p>}
 
       <div className="w-full max-w-md mt-5">
@@ -103,7 +127,7 @@ const Profile = () => {
           />
           <button
             onClick={handleFullNameUpdate}
-            className="btn bg-violet-500 text-white w-full mt-2"
+            className="btn bg-violet-600 text-white w-full mt-2"
           >
             Update Full Name
           </button>
@@ -119,7 +143,7 @@ const Profile = () => {
           />
           <button
             onClick={handleEmailUpdate}
-            className="btn bg-violet-500 text-white w-full mt-2"
+            className="btn bg-violet-600 text-white w-full mt-2"
           >
             Update Email
           </button>
@@ -135,7 +159,7 @@ const Profile = () => {
           />
           <button
             onClick={handlePasswordUpdate}
-            className="btn bg-violet-500 text-white w-full mt-2"
+            className="btn bg-violet-600 text-white w-full mt-2"
           >
             Update Password
           </button>

@@ -145,7 +145,7 @@ const Register = () => {
       });
       console.log("Blogger registered with UID as document ID:", user.uid);
       setSuccess("User registered successfully! ");
-      setTimeout(() => navigate('/login'), 3000); // Redirect after 3 seconds
+      setTimeout(() => navigate('/login'), 2000); // Redirect after 3 seconds
     } catch (e) {
       console.error("Error adding document:", e);
       setError("An error occurred while registering.");
@@ -163,7 +163,7 @@ const Register = () => {
 
           {/* Form Section */}
           <div className="w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-2xl font-bold text-center mb-6 text-violet-500">REGISTER</h2>
+            <h2 className="text-3xl font-bold text-center mb-6 text-violet-600">REGISTER</h2>
 
             {error && (
               <div className="text-red-500 mb-4">
@@ -209,7 +209,7 @@ const Register = () => {
               <button
                 type="submit"
                 onClick={registerUser}
-                className="w-full p-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition duration-300"
+                className="font-bold w-full p-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition duration-300"
               >
                 Register
               </button>

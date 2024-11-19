@@ -119,7 +119,7 @@ const Login = () => {
         // Wait for 3 seconds before redirecting
         setTimeout(() => {
           navigate('/'); // Redirect to home page
-        }, 3000);
+        }, 2000);
       })
       .catch((error) => {
         const errorMessage = error.message;
@@ -140,7 +140,7 @@ const Login = () => {
 
           {/* Form Section */}
           <div className="w-1/2 p-8 flex flex-col justify-center">
-            <h2 className="text-2xl font-bold text-center mb-6 text-violet-500">LOGIN</h2>
+            <h2 className="text-3xl font-bold text-center mb-6 text-violet-600">LOGIN</h2>
             {error && (
               <div className="text-red-500 mb-4">
                 <strong>{error}</strong>
@@ -179,7 +179,7 @@ const Login = () => {
               <button
                 type="submit"
                 onClick={loginUser}
-                className="w-full p-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition duration-300"
+                className=" font-bold w-full p-3 bg-violet-600 text-white rounded-lg hover:bg-violet-700 transition duration-300"
               >
                 Login
               </button>
