@@ -82,9 +82,8 @@
 import React, { useRef, useState, useEffect } from 'react';
 import image from '../assets/images/rb_855.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../config/firebaseConfig';
-import { onAuthStateChanged } from 'firebase/auth';
 
 const Login = () => {
   // Taking values
@@ -94,43 +93,41 @@ const Login = () => {
   // Navigation
   const navigate = useNavigate();
 
-  // For error handling
+  // For error and success handling
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
 
-  // Redirect if the user is already logged in
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        navigate('/'); // Redirect to home if already logged in
-      }
-    });
-
-    return () => unsubscribe();
-  }, [navigate]);
-
+  
   const loginUser = (event) => {
     event.preventDefault();
     setError(null); // Reset previous error
+    setSuccess(null); // Reset previous success
+  
     const emailValue = email.current.value;
     const passwordValue = password.current.value;
-
+  
     if (!emailValue || !passwordValue) {
       setError("Please fill in all fields.");
       return;
     }
-
+  
     signInWithEmailAndPassword(auth, emailValue, passwordValue)
       .then((userCredential) => {
         const user = userCredential.user;
         console.log("User logged in:", user);
-        navigate('/'); // Redirect to home page after successful login
+        setSuccess("Login successful!");
+        // Wait for 3 seconds before redirecting
+        setTimeout(() => {
+          navigate('/'); // Redirect to home page
+        }, 3000);
       })
       .catch((error) => {
         const errorMessage = error.message;
-        setError(errorMessage);
+        setError("Invalid email or password. Please try again.");
         console.error("Error logging in:", errorMessage);
       });
   };
+  
 
   return (
     <>
@@ -138,7 +135,7 @@ const Login = () => {
         <div className="flex w-[60%] h-[70vh] border rounded-lg overflow-hidden shadow-lg">
           {/* Image Section */}
           <div className="w-1/2">
-            <img src={image} alt="Registration" className="object-cover w-full h-full" />
+            <img src={image} alt="Login" className="object-cover w-full h-full" />
           </div>
 
           {/* Form Section */}
@@ -149,28 +146,51 @@ const Login = () => {
                 <strong>{error}</strong>
               </div>
             )}
+            {success && (
+              <div role="alert" className="alert alert-success mb-3">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Successfully Login!</span>
+              </div>
+            )}
+
             <form className="space-y-4">
               <input
                 type="email"
-                placeholder="Enter Email" ref={email}
+                placeholder="Enter Email"
+                ref={email}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <input
                 type="password"
-                placeholder="Enter Password" ref={password}
+                placeholder="Enter Password"
+                ref={password}
                 className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
               <button
-                type="submit" onClick={loginUser}
+                type="submit"
+                onClick={loginUser}
                 className="w-full p-3 bg-violet-500 text-white rounded-lg hover:bg-violet-600 transition duration-300"
               >
                 Login
               </button>
-              <div className='flex justify-between'>
-              <Link className='underline text-violet-500 ' to={'../Register'}>Create Account</Link>
-              <Link className='underline text-violet-500 ' >Forget Password</Link>
+              <div className="flex justify-between mt-4">
+                <Link className="underline text-violet-500" to="/Register">
+                  Create Account
+                </Link>
+                <Link className="underline text-violet-500" to="/ForgetPassword">
+                  Forgot Password?
+                </Link>
               </div>
-    
             </form>
           </div>
         </div>

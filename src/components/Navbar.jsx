@@ -4,10 +4,12 @@ import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { auth, db } from '../config/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { FaRegUser } from "react-icons/fa";
 
 const Navbar = () => {
   const [bloggers, setBloggers] = useState(false); // Track user authentication state
   const [userName, setUserName] = useState(''); // Track user name
+  const [success , setSuccess] = useState(null)
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,12 +40,17 @@ const Navbar = () => {
   const logoutUser = () => {
     signOut(auth)
       .then(() => {
-        navigate('/'); // Redirect to login after logout
+        setSuccess("Logout successful!"); // Show success message
+        setTimeout(() => {
+          setSuccess(null); // Clear success message after 3 seconds
+          navigate('/'); // Redirect to home page
+        }, 3000); // Wait for 3 seconds before clearing the message
       })
       .catch((error) => {
         console.error("Error logging out: ", error);
       });
   };
+  
 
   return (
     <div className="navbar bg-violet-300 p-3">
@@ -52,13 +59,31 @@ const Navbar = () => {
           <img className="w-36" src={logo} alt="Logo" />
         </a>
       </div>
-
+      {success && (
+              <div className='flex justify-center'>
+              <div role="alert" className="alert alert-success">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-6 w-6 shrink-0 stroke-current"
+                  fill="none"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Successfully Logout!</span>
+              </div>
+              </div>
+            )}
       {bloggers ? (
         <div>
           <ul className="menu menu-horizontal px-1"><li><a className="text-white text-lg font-semibold" href="/">Home</a></li></ul>
           <div className="dropdown dropdown-end">
             <div tabIndex={0} role="button" className="btn">
-             {userName }
+            <FaRegUser />
+              {userName}
             </div>
             <ul tabIndex={0} className="dropdown-content menu bg-base-100 rounded-box z-[1] w-44 p-2 shadow">
               <li className="hover:bg-violet-200 rounded-lg"><a href='/dashboard'>Dashboard</a></li>
@@ -76,8 +101,10 @@ const Navbar = () => {
           </ul>
         </div>
       )}
+      
     </div>
+    
   );
-};
+}
 
-export default Navbar;
+export default Navbar

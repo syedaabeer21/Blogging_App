@@ -7,6 +7,7 @@ const Dashboard = () => {
   const descriptionRef = useRef();
 
   const [loading, setLoading] = useState(false);
+  const [spin , setSpin] = useState(true)
   const [blogs, setBlogs] = useState([]);
   const [error, setError] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -43,6 +44,7 @@ const Dashboard = () => {
   };
 
   const fetchData = async () => {
+    setSpin(true)
     try {
       const q = query(
         collection(db, 'blogs'),
@@ -63,6 +65,9 @@ const Dashboard = () => {
     } catch (e) {
       console.error('Error fetching blogs: ', e);
       setError('Error loading blogs');
+    }
+    finally {
+      setSpin(false);
     }
   };
 
@@ -131,8 +136,9 @@ const Dashboard = () => {
 
   return (
     <>
-      <h1 className='text-center text-4xl font-bold text-violet-500 mt-5'>Dashboard</h1>
 
+      <h1 className='text-center text-4xl font-bold text-violet-500 mt-5'>Dashboard</h1>
+      
       <form className='flex flex-col gap-4 justify-center items-center mt-5' onSubmit={editingBlog ? updateBlog : postBlog}>
         <input
           type="text"
@@ -156,7 +162,7 @@ const Dashboard = () => {
       </form>
 
       {error && <p className="text-red-500 mt-4">{error}</p>}
-
+      {spin && <p className="text-violet-500 flex justify-center mt-10 "><span className="loading loading-spinner loading-lg"></span></p>}
       <div className="mt-10 w-full flex flex-col items-center">
         {blogs.length === 0 ? (
           <p className="text-gray-500">No blogs posted yet.</p>
