@@ -52,7 +52,7 @@ const SingleBlogger = () => {
   return (
     <div className="p-5 max-w-5xl mx-auto">
       <h1 className="text-4xl font-bold text-center text-violet-600 mb-8">
-        {bloggerName.toUpperCase()}'S BLOGS
+        {bloggerName.toUpperCase()} BLOGS
       </h1>
       {loading && (
         <p className="text-violet-500 flex justify-center mt-10">

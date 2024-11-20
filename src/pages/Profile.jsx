@@ -90,7 +90,9 @@ const Profile = () => {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <p className="text-violet-500 flex justify-center mt-10">
+  <span className="loading loading-spinner loading-lg"></span>
+</p>;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
