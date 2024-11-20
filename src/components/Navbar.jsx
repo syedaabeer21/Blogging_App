@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { auth, db } from "../config/firebaseConfig";
 import { doc, getDoc } from "firebase/firestore";
 import { FaRegUser } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [bloggers, setBloggers] = useState(false);
@@ -93,10 +94,10 @@ const Navbar = () => {
               className="dropdown-content menu bg-white rounded-lg shadow-md z-[1] w-48 p-2"
             >
               <li className="hover:bg-violet-100 rounded-lg">
-                <a href="/dashboard">Dashboard</a>
+                <Link to={"/dashboard"}>Dashboard</Link>
               </li>
               <li className="hover:bg-violet-100 rounded-lg">
-                <a href="/profile">Profile</a>
+                <Link to={"/profile"}>Profile</Link>
               </li>
               <li className="hover:bg-violet-100 rounded-lg">
                 <a onClick={logoutUser}>Logout</a>
